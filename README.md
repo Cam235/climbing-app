@@ -6,11 +6,10 @@ A new Flutter project.
 
 This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+Some changes have been made to turn it into an app to log indoor bouldering climbs. Currently can log climbs, upload pictures and add descriptions.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Future aims:
+- Indoor map of local climbing gyms in which location can be referenced.
+  - Maybe even the ability to draw/add others locally.
+- More options when logging climbs.
+- Highlight holds on the provided image. (As long as colour/details are provided)
