@@ -34,7 +34,11 @@ class Climb {
   String notes;
   String photoPath;
 
-  Climb({required this.name, required this.grade, required this.notes, this.photoPath = ''});
+  Climb(
+      {required this.name,
+      required this.grade,
+      required this.notes,
+      this.photoPath = ''});
 }
 
 class MyAppState extends ChangeNotifier {
@@ -54,7 +58,6 @@ class MyAppState extends ChangeNotifier {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       gradingType = prefs.getString('gradingType')?.toLowerCase() ?? 'font';
-      print('Loaded gradingType: $gradingType');
       notifyListeners();
     } catch (e) {
       print("Error loading grading type: $e");
@@ -95,8 +98,6 @@ class MyAppState extends ChangeNotifier {
   }
 
   List<String> getCurrentGradingScale() {
-    print('Grading Scales: $gradingScales');
-    print('Current gradingType: $gradingType');
     return gradingScales[gradingType.capitalize()] ?? [];
   }
 
@@ -199,8 +200,6 @@ class _AddClimbPageState extends State<AddClimbPage> {
     final myAppState = Provider.of<MyAppState>(context);
     final gradingScale = myAppState.getCurrentGradingScale();
 
-    print('Grading Scale: $gradingScale');
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Add New Climb'),
@@ -240,7 +239,8 @@ class _AddClimbPageState extends State<AddClimbPage> {
             ElevatedButton(
               onPressed: () async {
                 final ImagePicker picker = ImagePicker();
-                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                final XFile? image =
+                    await picker.pickImage(source: ImageSource.gallery);
                 if (image != null) {
                   setState(() {
                     _photoPath = image.path;
@@ -261,7 +261,8 @@ class _AddClimbPageState extends State<AddClimbPage> {
                     notes: _notesController.text,
                     photoPath: _photoPath,
                   );
-                  myAppState.addClimb(newClimb.name, newClimb.grade, newClimb.notes);
+                  myAppState.addClimb(
+                      newClimb.name, newClimb.grade, newClimb.notes);
                   Navigator.of(context).pop();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -311,7 +312,8 @@ class _ClimbDetailsPageState extends State<ClimbDetailsPage> {
           IconButton(
             icon: Icon(Icons.delete),
             onPressed: () {
-              Provider.of<MyAppState>(context, listen: false).deleteClimb(widget.climb);
+              Provider.of<MyAppState>(context, listen: false)
+                  .deleteClimb(widget.climb);
               Navigator.of(context).pop();
             },
           ),
@@ -341,7 +343,8 @@ class _ClimbDetailsPageState extends State<ClimbDetailsPage> {
             ElevatedButton(
               onPressed: () async {
                 final ImagePicker picker = ImagePicker();
-                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                final XFile? image =
+                    await picker.pickImage(source: ImageSource.gallery);
                 if (image != null) {
                   setState(() {
                     _photoPath = image.path;
@@ -359,7 +362,8 @@ class _ClimbDetailsPageState extends State<ClimbDetailsPage> {
                   notes: _notesController.text,
                   photoPath: _photoPath,
                 );
-                Provider.of<MyAppState>(context, listen: false).updateClimb(widget.climb, updatedClimb);
+                Provider.of<MyAppState>(context, listen: false)
+                    .updateClimb(widget.climb, updatedClimb);
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
