@@ -6,7 +6,12 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,16 +19,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Bouldering Log',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        ),
-        home: MyHomePage(),
+    return MaterialApp(
+      title: 'Bouldering Log',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
       ),
+      home: MyHomePage(),
     );
   }
 }
@@ -34,19 +36,29 @@ class Climb {
   String notes;
   String photoPath;
 
-  Climb(
-      {required this.name,
-      required this.grade,
-      required this.notes,
-      this.photoPath = ''});
+  Climb({
+    required this.name,
+    required this.grade,
+    required this.notes,
+    this.photoPath = '',
+  });
 }
 
 class MyAppState extends ChangeNotifier {
-  String gradingType = 'Font';
+  String _gradingType = 'Font';
+  String get gradingType => _gradingType;
+
+  Future<void> setGradingType(String newGradingType) async {
+    _gradingType = newGradingType;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('gradingType', newGradingType);
+    notifyListeners();
+  }
+
   List<Climb> climbs = [];
   Map<String, List<String>> gradingScales = {
     'Font': ['5a', '5b', '5c', '6a', '6b', '6c', '7a', '7b', '7c'],
-    'V-Scale': ['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8']
+    'V-Scale': ['V0', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8'],
   };
 
   MyAppState() {
@@ -57,7 +69,10 @@ class MyAppState extends ChangeNotifier {
   Future<void> loadGradingType() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      gradingType = prefs.getString('gradingType')?.toLowerCase() ?? 'font';
+      String? savedGradingType = prefs.getString('gradingType');
+      if (savedGradingType != null) {
+        _gradingType = savedGradingType;
+      }
       notifyListeners();
     } catch (e) {
       print("Error loading grading type: $e");
@@ -98,13 +113,13 @@ class MyAppState extends ChangeNotifier {
   }
 
   List<String> getCurrentGradingScale() {
-    return gradingScales[gradingType.capitalize()] ?? [];
+    return gradingScales[_gradingType] ?? [];
   }
 
   void addClimb(String name, String grade, String notes) {
     climbs.add(Climb(name: name, grade: grade, notes: notes));
-    notifyListeners();
     saveClimbs();
+    notifyListeners();
   }
 
   void deleteClimb(Climb climb) {

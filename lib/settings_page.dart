@@ -1,6 +1,7 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'main.dart'; // Import your main application state
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -19,9 +20,11 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _loadGradingType() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      setState(() {
-        _selectedGradingType = prefs.getString('gradingType') ?? 'Font';
-      });
+      if (mounted) {
+        setState(() {
+          _selectedGradingType = prefs.getString('gradingType') ?? 'Font';
+        });
+      }
     } catch (e) {
       print("Error loading grading type: $e");
     }
@@ -31,10 +34,14 @@ class _SettingsPageState extends State<SettingsPage> {
     if (gradingType == null) return;
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      setState(() {
-        _selectedGradingType = gradingType;
-        prefs.setString('gradingType', gradingType);
-      });
+      if (mounted) {
+        setState(() {
+          _selectedGradingType = gradingType;
+          prefs.setString('gradingType', gradingType);
+        });
+        // Update the main application state
+        Provider.of<MyAppState>(context, listen: false).setGradingType(gradingType);
+      }
     } catch (e) {
       print("Error saving grading type: $e");
     }
@@ -42,6 +49,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> gradingTypes = ['Font', 'V-scale'];
+
+    // Ensure the selected grading type is valid
+    if (_selectedGradingType == null || !gradingTypes.contains(_selectedGradingType)) {
+      _selectedGradingType = gradingTypes.first;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Settings'),
@@ -61,13 +75,16 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 DropdownButton<String>(
                   value: _selectedGradingType,
-                  items: <String>['Font', 'V-scale'].map((String value) {
+                  items: gradingTypes.map((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedGradingType = newValue;
+                    });
                     _setGradingType(newValue);
                   },
                 ),
